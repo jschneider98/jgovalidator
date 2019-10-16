@@ -42,7 +42,7 @@ func GetValidator() *validator.Validate {
 	validate.RegisterValidation("int", IsInt)
 	validate.RegisterValidation("float", IsFloat)
 	validate.RegisterValidation("date", IsDate)
-	validate.RegisterValidation("rfc33e9", IsRFC3339)
+	validate.RegisterValidation("rfc3339", IsRFC3339)
 	validate.RegisterValidation("rfc3339WithoutZone", IsRFC3339WithoutZone)
 
 	// register all sql.Null* types to use the ValidateValuer CustomTypeFunc
