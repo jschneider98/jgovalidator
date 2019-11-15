@@ -44,6 +44,7 @@ func GetValidator() *validator.Validate {
 	validate.RegisterValidation("date", IsDate)
 	validate.RegisterValidation("rfc3339", IsRFC3339)
 	validate.RegisterValidation("rfc3339WithoutZone", IsRFC3339WithoutZone)
+	validate.RegisterValidation("datetime", IsDatetime)
 
 	// register all sql.Null* types to use the ValidateValuer CustomTypeFunc
 	validate.RegisterCustomTypeFunc(ValidateValuer, sql.NullString{}, sql.NullInt64{}, sql.NullBool{}, sql.NullFloat64{})
@@ -100,6 +101,11 @@ func IsRFC3339(fl validator.FieldLevel) bool {
 // IsRFC3339WithoutZone check if string is valid timestamp value according to RFC3339 which excludes the timezone.
 func IsRFC3339WithoutZone(fl validator.FieldLevel) bool {
 	return IsTime(fl.Field().String(), RF3339WithoutZone)
+}
+
+// datetime with or without timezone
+func IsDatetime(fl validator.FieldLevel) bool {
+	return ( IsTime(fl.Field().String(), time.RFC3339) || IsTime(fl.Field().String(), RF3339WithoutZone) )
 }
 
 // **********************************
