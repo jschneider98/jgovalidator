@@ -1,16 +1,15 @@
 package jgovalidator
 
-
 import (
-	"time"
-	"regexp"
 	"database/sql"
 	"database/sql/driver"
-	"reflect"
 	"gopkg.in/go-playground/validator.v9"
+	"reflect"
+	"regexp"
+	"time"
 )
 
-// 
+//
 type Validate struct {
 	*validator.Validate
 }
@@ -25,9 +24,9 @@ const (
 // Singleton. This object caches struct defs, so use singleton.
 var (
 	validate *validator.Validate
-	rxInt = regexp.MustCompile(Int)
-	rxFloat = regexp.MustCompile(Float)
-	rxDate = regexp.MustCompile(DateExp)
+	rxInt    = regexp.MustCompile(Int)
+	rxFloat  = regexp.MustCompile(Float)
+	rxDate   = regexp.MustCompile(DateExp)
 )
 
 //
@@ -45,6 +44,7 @@ func GetValidator() *validator.Validate {
 	validate.RegisterValidation("rfc3339", IsRFC3339)
 	validate.RegisterValidation("rfc3339WithoutZone", IsRFC3339WithoutZone)
 	validate.RegisterValidation("datetime", IsDatetime)
+	validate.RegisterValidation("errorMsg", ErrorMsg)
 
 	// register all sql.Null* types to use the ValidateValuer CustomTypeFunc
 	validate.RegisterCustomTypeFunc(ValidateValuer, sql.NullString{}, sql.NullInt64{}, sql.NullBool{}, sql.NullFloat64{})
@@ -105,7 +105,14 @@ func IsRFC3339WithoutZone(fl validator.FieldLevel) bool {
 
 // datetime with or without timezone
 func IsDatetime(fl validator.FieldLevel) bool {
-	return ( IsTime(fl.Field().String(), time.RFC3339) || IsTime(fl.Field().String(), RF3339WithoutZone) )
+	return (IsTime(fl.Field().String(), time.RFC3339) || IsTime(fl.Field().String(), RF3339WithoutZone))
+}
+
+// If an error message is set, then this field is not valid.
+// Very useful for validation that cannot be done within the limits of the validate package.
+// For example: Validating a DB unique constraint.
+func ErrorMsg(fl validator.FieldLevel) bool {
+	return fl.Field().String() == ""
 }
 
 // **********************************
